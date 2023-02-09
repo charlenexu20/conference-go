@@ -104,3 +104,25 @@ def api_show_attendee(request, id):
     elif request.method == "DELETE":
         count, _ = Attendee.objects.filter(id=id).delete()
         return JsonResponse({"deleted": count > 0})
+    else:
+        content = json.loads(request.body)
+
+        try:
+            if "conference" in content:
+                conference = Conference.objects.get(id=content["conference"])
+                content["conference"] = conference
+        except Conference.DoesNotExist:
+            return JsonResponse(
+                {"message": "Invalid conference id"},
+                status=400,
+            )
+
+        Attendee.objects.filter(id=id).update(**content)
+
+        # copied from get detail
+        attendee = Attendee.objects.get(id=id)
+        return JsonResponse(
+            attendee,
+            encoder=AttendeeDetailEncoder,
+            safe=False,
+        )

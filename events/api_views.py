@@ -131,13 +131,14 @@ def api_show_conference(request, id):
         return JsonResponse({"delete": count > 0})
     else:
         content = json.loads(request.body)
+
         try:
-            # "name" is just a property in the content, it could be other property
-            if "name" in content:
-                conference = Conference.objects.get(name=content["name"])
-        except Conference.DoesNotExist:
+            if "location" in content:
+                location = Location.objects.get(id=content["location"])
+                content["location"] = location
+        except Location.DoesNotExist:
             return JsonResponse(
-                {"message": "Invalid name"},
+                {"message": "Invalid location id"},
                 status=400,
             )
 
