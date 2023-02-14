@@ -122,17 +122,24 @@ def api_show_conference(request, id):
     }
     """
     if request.method == "GET":
-        conference = Conference.objects.get(id=id)
+        try:
+            conference = Conference.objects.get(id=id)
+            weather = get_weather_data(
+                conference.location.city,
+                conference.location.state.abbreviation,
+            )
 
-        weather = get_weather_data(
-            conference.location.city, conference.location.state.abbreviation
-        )
+            return JsonResponse(
+                {"weather": weather, "conference": conference},
+                encoder=ConferenceDetailEncoder,
+                safe=False,
+            )
+        except Conference.DoesNotExist:
+            return JsonResponse(
+                {"message": "Invalid conference id"},
+                status=400,
+            )
 
-        return JsonResponse(
-            {"weather": weather, "conference": conference},
-            encoder=ConferenceDetailEncoder,
-            safe=False,
-        )
     elif request.method == "DELETE":
         count, _ = Conference.objects.filter(id=id).delete()
         return JsonResponse({"delete": count > 0})
