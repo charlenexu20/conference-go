@@ -50,12 +50,12 @@ class Presentation(models.Model):
     def approve(self):
         status = Status.objects.get(name="APPROVED")
         self.status = status
-        status.save()
+        self.save()
 
     def reject(self):
         status = Status.objects.get(name="REJECTED")
         self.status = status
-        status.save()
+        self.save()
 
     @classmethod
     def create(cls, **kwargs):
